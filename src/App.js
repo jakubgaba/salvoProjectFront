@@ -1,5 +1,4 @@
 
-import './App.css';
 import { useState, useEffect } from 'react';
 
 export const useData = (path) => {
@@ -11,19 +10,19 @@ export const useData = (path) => {
     fetch(path)
       .then(response => response.json())
       .then(data => {
-        const noNull = data._embedded.players.filter(function (val) { return val.userName !== '' })
-        console.log(noNull);
-        setData(noNull);
+        // const noNull = data._embedded.players.filter(function (val) { return val.userName !== '' })
+        // console.log(noNull);
+        setData(data._embedded.games);
         setLoading(false);
       })
-  }, [path, data]);
+  }, [path]);
 
   return [data, loading];
 };
 
-export const addPerson = async (userName) => {
+export const addPerson = async (game) => {
   document.getElementById("text-message").value="";
-  await fetch('/players', {
+  await fetch('/games', {
     method: 'POST',
     mode: 'cors',
     cache: 'no-cache',
@@ -31,23 +30,23 @@ export const addPerson = async (userName) => {
     headers: {
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({ userName })
+    body: JSON.stringify({ game })
   });
-  return fetch('/players');
+  return fetch('/games');
 };
 
 function App() {
 
-  const [players, loading] = useData('/players');
+  const [players, loading] = useData('/games');
   if (loading) {
     return <p>Loading...</p>;
   }
 
 
 
-  const names = players.map(player => <tr><td>{player.userName}</td></tr>);
+  const names = players.map(player => <tr><td>{player.gameCreated}</td></tr>);
 
-
+  
   return (
     <div>
 
