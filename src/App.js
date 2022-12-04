@@ -22,7 +22,7 @@ export const useData = (path) => {
 
 export const addPerson = async (game) => {
   document.getElementById("text-message").value="";
-  await fetch('/games', {
+  await fetch('/rest/games', {
     method: 'POST',
     mode: 'cors',
     cache: 'no-cache',
@@ -32,12 +32,12 @@ export const addPerson = async (game) => {
     },
     body: JSON.stringify({ game })
   });
-  return fetch('/games');
+  return fetch('/rest/games');
 };
 
 function App() {
 
-  const [players, loading] = useData('/games');
+  const [players, loading] = useData('/rest/games');
   if (loading) {
     return <p>Loading...</p>;
   }
