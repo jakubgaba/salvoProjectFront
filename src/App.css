@@ -1,0 +1,13 @@
+.myTable {
+    margin-left: auto;
+    margin-right: auto;
+    table-layout: fixed;
+}
+
+td {
+    text-align: center;
+    width: 45px;
+}
+.tableRows{
+    height: 40px;
+}

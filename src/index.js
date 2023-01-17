@@ -6,6 +6,7 @@ import './index.css';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import App from './App';
 import Games from './web/AllGames';
+import Game from './web/Game';
 import reportWebVitals from './reportWebVitals';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
@@ -14,6 +15,8 @@ root.render(
     <Routes>
       <Route path='/' element={<App />} />
       <Route path='/AllGames' element={<Games />} />
+      <Route path='/game/:id' element={<Game></Game>}></Route>
+
     </Routes>
   </BrowserRouter>
 );

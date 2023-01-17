@@ -21,7 +21,9 @@ export const useData = (path) => {
 };
 
 export const addPerson = async (game) => {
+  
   document.getElementById("text-message").value="";
+ 
   await fetch('/rest/games', {
     method: 'POST',
     mode: 'cors',

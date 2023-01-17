@@ -1,5 +1,5 @@
 
-import { useState, useEffect, Children } from 'react';
+import { useState, useEffect } from 'react';
 
 export const useData = (path) => {
 
@@ -60,24 +60,13 @@ function AllGames() {
       <tr>
         <th  rowSpan={0} scope='row'>{data.id}</th>
         <td  rowSpan={0} >{data.created}</td>
-        <th>$</th>
-      </tr>
-      <tr>
-
-        {data.gamePlayers.map(datas => {
-          return (
-            <th>
-              {datas.players.id}
-            </th>
-          )
-        })}
       </tr>
       <tr>
         {data.gamePlayers.map(datas => {
           return (
-            <td className='bg-success p-2 text-white'>
-              Player name: {datas.players.userName}
-            </td>
+            <tr>
+              <td>{datas.players.userName}</td>
+            </tr>
           )
         })}
       </tr>
@@ -86,7 +75,7 @@ function AllGames() {
   return (
     <div>
       <h1 className='display-1 border-bottom border-5 '>DATA</h1>
-      <table className="table table-striped">
+      <table className="table">
         <thead>
           <tr>
             <th scope="col">$</th>
