@@ -20,22 +20,6 @@ import jackShip1horizon from "../images/jackShip1horizon.png";
 import jackShip2horizon from "../images/jackShip2horizon.png";
 import jackShip3horizon from "../images/jackShip3horizon.png";
 import "../App.css"
-// export const useData = (path) => {
-
-//     const [data, setData] = useState();
-//     const [loading, setLoading] = useState(true);
-
-//     useEffect(() => {
-//         fetch(path)
-//             .then(response => response.json())
-//             .then(data => {
-//                 setData(data);
-//                 setLoading(false);
-//             })
-//     }, [path]);
-
-//     return [data, loading];
-// };
 
 export default function Game() {
     const { id } = useParams();
@@ -144,10 +128,10 @@ export default function Game() {
 
     function shipLocation(row, column) {
         if (shipLocations.toString().includes(row + column)) {
-            return <div>{mappingImages.get(row + column)}</div>
+            return mappingImages.get(row + column);
         }
         else {
-            return <div className="p-3 bg-info rounded"></div>
+            return <div className="p-4 bg-info"></div>
         }
     }
 
@@ -180,7 +164,7 @@ export default function Game() {
                     </thead>
                     <tbody>
                         {tableRows.map((row, indexRow) =>
-                            <tr className="tableRows">
+                            <tr>
                                 <td>
                                     {row}
                                 </td>
@@ -198,29 +182,3 @@ export default function Game() {
     );
 }
 
-// to spot which one is horizontal element.locations[0].charAt(0) == element.locations[1].charAt(0)
-        // console.log(element.type);
-        // if (element.locations.length == 3) {
-        //     if (!(element.locations[0].charAt(0) == element.locations[1].charAt(0))) {
-        //         element.locations.forEach((data, index) => {
-        //             mappingImages.set(data, <img src={cruiser[index]} alt="ShipTop"></img>)
-        //         })
-        //     }
-        //     else {
-        //         element.locations.forEach((data, index) => {
-        //             mappingImages.set(data, <img src={cruiserHorizon[index]} alt="ShipTop"></img>)
-        //         })
-        //     }
-        // }
-        // else if (element.locations.length == 4) {
-        //     if (!(element.locations[0].charAt(0) == element.locations[1].charAt(0))) {
-        //         element.locations.forEach((data, index) => {
-        //             mappingImages.set(data, <img src={happyShip[index]} alt="ShipTop"></img>)
-        //         })
-        //     }
-        //     else {
-        //         element.locations.forEach((data, index) => {
-        //             mappingImages.set(data, <img src={happyShip[index]} alt="ShipTop"></img>)
-        //         })
-        //     }
-        // }
