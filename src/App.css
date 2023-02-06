@@ -1,12 +1,29 @@
 .myTable {
-    margin-left: auto;
-    margin-right: auto;
-    /* table-layout: fixed; */
+    display: inline-block;
+    padding: 20px;
+    text-align: center;
 }
-
+.table-container{
+    text-align: center;
+}
 td img {
     display: block;
     margin-left: auto;
     margin-right: auto;
-    
+}
+.mySalvoShots{
+    background-color: gray;
+    padding: 25%;
+}
+.mySalvoMatch{
+    background-color: red;
+    padding: 25%;
+}
+.EnemySalvoShots{
+    background-color: gray;
+    padding: 25%;
+}
+.EnemySalvoShotMatch{
+    background-color: red;
+    padding: 25%;
 }

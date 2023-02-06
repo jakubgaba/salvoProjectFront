@@ -1,6 +1,5 @@
 import { useParams } from "react-router-dom";
 import FetchData from "./components/FetchData";
-import image from "../images/eye.gif";
 import cruiser0 from "../images/cruiser0.png";
 import cruiser1 from "../images/cruiser1.png";
 import cruiser2 from "../images/cruiser2.png";
@@ -22,28 +21,11 @@ import jackShip3horizon from "../images/jackShip3horizon.png";
 import "../App.css"
 
 export default function Game() {
+
     const { id } = useParams();
-    const [data, loading] = FetchData("/api/game_view/" + id);
-
-    if (loading) {
-        return (
-            <div className="spinner-grow " role="status">
-                <span className="visually-hidden">Loading...</span>
-            </div>
-        )
-    }
-
-    const rivalNames = data.gamePlayers.map((element, index) => {
-        return (
-            <tr key={index}>
-                <th scope="row">{element.Id}</th>
-                <td>{element.Player}</td>
-                <td>{element.WhatGPAmI == id ? <img src={image} alt="looking eyes"></img> : ""}</td>
-            </tr>
-        );
-    });
-
-    
+    const [data, loading] = FetchData(`/api/game_view/${id}`);
+    var tableRows = [" ", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J"];
+    var tableColumns = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"];
     const cruiser = [];
     cruiser.push(cruiser0);
     cruiser.push(cruiser1);
@@ -74,12 +56,27 @@ export default function Game() {
     jackSparrowHorizon.push(jackShip2horizon);
     jackSparrowHorizon.push(jackShip3horizon);
 
-    var tableRows = [" ", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J"];
-    var tableColumns = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"];
+    if (loading) {
+        return (
+            <div className="spinner-grow " role="status">
+                <span className="visually-hidden">Loading...</span>
+            </div>
+        )
+    }
+    const mySalvoes = data.salvoes;
+    let enemyShots;
+    let enemyLocation;
+    const rivalNames = data.gamePlayers.map((element, index) => {
+        return (
+            <tr key={index}>
+                <th scope="row">{element.Id}</th>
+                <td>{element.Player}</td>
+            </tr>
+        );
+    });
+
 
     var mappingImages = new Map();
-
-
     data.ships.forEach(element => {
         switch (element.locations.length) {
             case 2:
@@ -121,14 +118,58 @@ export default function Game() {
         }
     });
 
-    var shipLocations = data.ships.map((element, index) => {
+    var shipLocations = data.ships.map((element) => {
         return element.locations;
     });
 
+    data.gamePlayers.forEach(element => {
+        if (element.Id !== data.gamePlayerId) {
+            enemyShots = element.enemySalvoes[0];
+            enemyLocation = element.enemyShipLocations;
+        }
+    });
 
-    function shipLocation(row, column) {
+    function detectEnemyShot(shotFired, row, column) {
+        let isShotFound = false;
+        let round;
+        for (const [index, salvo] of Object.entries(shotFired)) {
+            if (salvo.includes(row + column)) {
+                isShotFound = true;
+                round = index;
+                break;
+            }
+        }
+        return [isShotFound, round];
+    }
+
+    function displayShipLocation(row, column) {
         if (shipLocations.toString().includes(row + column)) {
-            return mappingImages.get(row + column);
+            if (detectEnemyShot(enemyShots, row, column)[0]) {
+                return <div className="EnemySalvoShotMatch">{detectEnemyShot(enemyShots, row, column)[1]}</div>;
+            }
+            else {
+                return mappingImages.get(row + column);
+            }
+        }
+        else {
+            if (detectEnemyShot(enemyShots, row, column)[0]) {
+                return <div className="EnemySalvoShots">{detectEnemyShot(enemyShots, row, column)[1]}</div>;
+            }
+            else {
+                return <div className="p-4 bg-info"></div>
+            }
+        }
+    }
+
+
+    function displayMyShots(row, column) {
+        if (detectEnemyShot(mySalvoes, row, column)[0]) {
+            if (enemyLocation.toString().includes(row + column)) {
+                return <div className="mySalvoMatch">{detectEnemyShot(mySalvoes, row, column)[1]}</div>;
+            }
+            else {
+                return <div className="mySalvoShots">{detectEnemyShot(mySalvoes, row, column)[1]}</div>;
+            }
         }
         else {
             return <div className="p-4 bg-info"></div>
@@ -147,7 +188,6 @@ export default function Game() {
                     <tr>
                         <th scope="col">ID</th>
                         <th scope="col">NAMES</th>
-                        <th scope="col"></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -155,12 +195,12 @@ export default function Game() {
                 </tbody>
             </table>
             <br></br>
-            <h2 className="d-flex justify-content-center h-1">
-                Ships
-            </h2>
-            <div>
+            <div className="table-container">
                 <table className="myTable">
                     <thead>
+                        <tr>
+                            <th>MY SHIPS</th>
+                        </tr>
                     </thead>
                     <tbody>
                         {tableRows.map((row, indexRow) =>
@@ -170,7 +210,28 @@ export default function Game() {
                                 </td>
                                 {tableColumns.map((column, indexColumn) =>
                                     <td id={row + column}>
-                                        {indexRow == 0 ? column : shipLocation(row, column)}
+                                        {indexRow == 0 ? column : displayShipLocation(row, column)}
+                                    </td>
+                                )}
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+                <table className="myTable">
+                    <thead>
+                        <tr>
+                            <th>MY SHOTS</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {tableRows.map((row, indexRow) =>
+                            <tr>
+                                <td>
+                                    {row}
+                                </td>
+                                {tableColumns.map((column, indexColumn) =>
+                                    <td id={row + column}>
+                                        {indexRow == 0 ? column : displayMyShots(row, column)}
                                     </td>
                                 )}
                             </tr>
