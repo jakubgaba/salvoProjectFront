@@ -12,11 +12,6 @@ try{
             if(!response.ok) throw response;
             const json = await response.json();
             console.log(json);
-            json.gamePlayers.forEach(element => {
-            if(element.Id === json.gamePlayerId){
-            console.log(json);
-            }
-            });
             setData(json);
             setLoading(false);
         }

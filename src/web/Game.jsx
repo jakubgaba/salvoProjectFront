@@ -70,7 +70,7 @@ export default function Game() {
         return (
             <tr key={index}>
                 <th scope="row">{element.Id}</th>
-                <td>{element.Player}</td>
+                {element.Id == data.gamePlayerId ? <td className="text-success">{element.Player}</td> : <td>{element.Player}</td>}
             </tr>
         );
     });
@@ -177,6 +177,20 @@ export default function Game() {
     }
 
 
+    const whoWon = data.gamePlayers.map((element) => {
+        if (element.Score.toString() == 1) {
+            return (
+                <div className="display-5 p-3 mb-2 bg-success bg-gradient text-white">The winner is {element.Player}</div>
+            );
+        }
+        else {
+            return (
+                <div className="p-3 mb-2 bg-danger bg-gradient text-white">The loser is {element.Player}</div>
+            );
+        }
+
+    });
+
     return (
         <div>
             <h1 className='display-1 border-bottom border-5 text-center'>Gameplayer {data.gamePlayerId}</h1>
@@ -239,6 +253,7 @@ export default function Game() {
                     </tbody>
                 </table>
             </div>
+            <div className="text-center">{whoWon}</div>
         </div>
     );
 }
