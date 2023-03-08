@@ -3,10 +3,11 @@ import ReactDOM from 'react-dom/client';
 import 'mdb-react-ui-kit/dist/css/mdb.min.css';
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import './index.css';
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import App from './App';
 import Games from './web/AllGames';
 import Game from './web/Game';
+import Login from './web/Login';
 import Leaderboard from './web/LeaderBoard';
 import reportWebVitals from './reportWebVitals';
 
@@ -14,11 +15,12 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <BrowserRouter>
     <Routes>
-      <Route path='/' element={<App />} />
-      <Route path='/AllGames' element={<Games />} />
-      <Route path='/game/:id' element={<Game></Game>}></Route>
-      <Route path='/leaderboard' element={<Leaderboard/>} />
-    </Routes>
+        <Route path="/" element={<Navigate to="/login" replace />}  />
+        <Route path="/AllGames" element={<Games />}  />
+        <Route path="/game/:id" element={<Game />} />
+        <Route path="/leaderboard" element={<Leaderboard />}  />
+        <Route path="/login" element={<Login />} />
+      </Routes>
   </BrowserRouter>
 );
 
