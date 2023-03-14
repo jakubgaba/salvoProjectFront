@@ -14,8 +14,6 @@ function LeaderBoard() {
         )
     }
 
-
-
     let animationFrameId;
 
     const numRows = data.Scores.length;

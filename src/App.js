@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-
+import Logout from './web/components/Logout';
 export const useData = (path) => {
   
   const [data, setData] = useState();
@@ -72,7 +72,7 @@ function App() {
           {names}
         </tbody>
       </table>
-
+<Logout></Logout>
 
     </div>
   );
