@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+
 function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -13,6 +14,7 @@ function Login() {
     })
       .then(response => {
         if (response.status === 200) {
+          localStorage.setItem('playerId', response.data);
           window.location.href = '/';
         }
       })

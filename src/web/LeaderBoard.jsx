@@ -4,7 +4,7 @@ import "../App.css"
 
 function LeaderBoard() {
     const [data, loading] = FetchData(`/api/leaderboard`);
-
+    
 
     if (loading) {
         return (
