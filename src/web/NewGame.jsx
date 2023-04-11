@@ -2,6 +2,9 @@ import cruiser from "../images/cruiserShip2.png";
 import cruiser0 from "../images/cruiser0.png";
 import cruiser1 from "../images/cruiser1.png";
 import cruiser2 from "../images/cruiser2.png";
+import cruiser0horizon from "../images/cruiser0horizon.png";
+import cruiser1horizon from "../images/cruiser1horizon.png";
+import cruiser2horizon from "../images/cruiser2horizon.png";
 import happyShip from "../images/HappyShip2.png";
 import jackShip from "../images/jackShip.png";
 import happy0 from "../images/happy0.png";
@@ -19,9 +22,6 @@ function NewGame() {
     const [draggedShipName, setDraggedShipName] = useState(null);
     const [draggedShipStyle, setDraggedShipStyle] = useState({});
     const [cellIds, setCellIds] = useState([]);
-    const [droppedCruiser, setCruiser] = useState([]);
-    const [droppedHappy, setHappy] = useState([]);
-    const [droppedJack, setJack] = useState([]);
 
     const cruiserSeparated = [];
     cruiserSeparated.push(cruiser0);
@@ -52,42 +52,35 @@ function NewGame() {
     function handleDragEnd() {
         if (cellIds.length > 0 && !cellIds.some(item => item.charAt(0) === " " || item === undefined || item === null || item.includes("undefined"))) {
             const tds = cellIds.map((id) => document.getElementById(id));
-            const cruiserIndexes = [];
-            const happyIndexes = [];
-            const jackIndexes = [];
+            const isImageFound = tds.some(item => item.innerHTML.includes('<img'));
+            if (isImageFound) {
+                setDraggedShip(null);
+                setDraggedShipName(null);
+                setDraggedShipStyle({});
+                setCellIds([]);
+                return;
+            }
             tds.forEach((location, index) => {
                 switch (draggedShipName) {
                     case "cruiser":
                         location.setAttribute('data-comment', 'cruiser');
-                        location.setAttribute('alt', 'cruiser');
+                        location.setAttribute('alt', cellIds);
                         location.innerHTML = '<img src="' + cruiserSeparated[index] + '">';
-                        cruiserIndexes.push(location);
                         break;
                     case "happyShip":
                         location.setAttribute('data-comment', 'happyShip');
-                        location.setAttribute('alt', 'happyShip');
+                        location.setAttribute('alt', cellIds);
                         location.innerHTML = '<img src="' + happySeparated[index] + '">';
-                        happyIndexes.push(location);
                         break;
                     case "jackShip":
                         location.setAttribute('data-comment', 'jackShip');
-                        location.setAttribute('alt', 'jackShip');
+                        location.setAttribute('alt', cellIds);
                         location.innerHTML = '<img src="' + jackSparrow[index] + '">';
-                        jackIndexes.push(location);
                         break;
                     default:
                         break;
                 }
             });
-            if (cruiserIndexes.length > 0) {
-                setCruiser(cruiserIndexes);
-            }
-            if (happyIndexes.length > 0) {
-                setHappy(happyIndexes);
-            }
-            if (jackIndexes.length > 0) {
-                setJack(jackIndexes);
-            }
         } else {
             setDraggedShip(null);
             setDraggedShipName(null);
@@ -159,8 +152,13 @@ function NewGame() {
 
     function handleDoubleClick(event, row, column) {
         const element = document.getElementById(row + column);
-        const dataCommentValue = element.getAttribute('data-comment');
-        console.log(dataCommentValue);
+        const dataCommentValue = element.getAttribute('alt');
+        const cellIds = dataCommentValue.split(','); // Convert the location string to an array of cell IDs
+        
+        const middleIndex = Math.floor((cellIds.length - 1) / 2); // Calculate the middle index
+        const middleCellId = cellIds[middleIndex]; // Get the cell ID at the middle index
+
+        console.log(middleCellId); // Output: G3
     }
 
     function handleDragStartCells(event) {
