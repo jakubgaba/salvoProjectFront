@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import FetchData from './components/FetchData';
 import axios from 'axios';
-
+import { useNavigate } from 'react-router-dom';
 function AllGames() {
   const storedPlayerId = localStorage.getItem('playerId');
   const [data, loading, error] = FetchData('/api/games');
-
   const [gamesData, setGamesData] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (data) {
@@ -14,13 +14,13 @@ function AllGames() {
     }
   }, [data]);
 
+  console.log(gamesData);
+
   const handleClick = async () => {
     try {
-      const response = await axios.post(`/api/games?player=${parseInt(storedPlayerId)}`);
-      console.log(response);
-      // Re-fetch
       const refreshedData = await axios.get('/api/games');
       setGamesData(refreshedData.data);
+      navigate('/newgame');
     } catch (error) {
       console.log(error.response.data);
     }
@@ -30,9 +30,9 @@ function AllGames() {
     console.log(gameId);
     try {
       const response = await axios.post(`/api/game/${gameId}/players`, { playerId: parseInt(storedPlayerId) });
-      console.log(response);
       const refreshedData = await axios.get('/api/games');
       setGamesData(refreshedData.data);
+      console.log(response);
     } catch (error) {
       console.log(error.response.data);
     }
@@ -49,7 +49,7 @@ function AllGames() {
           <td>{datas.players.userName}</td>
           <td>{/*eslint-disable-next-line */}
             {storedPlayerId == datas.players.id ? (
-              <button className="btn btn-success" onClick={() => { window.location.href = `/game/${datas.id}` }}>
+              <button className="btn btn-success" onClick={() => console.log(data.gamePlayers)}>
                 Continue
               </button>
             ) : (// eslint-disable-next-line
