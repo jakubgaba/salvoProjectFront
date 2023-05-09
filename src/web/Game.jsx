@@ -83,11 +83,11 @@ export default function Game() {
                 !(element.locations[0].charAt(0) === element.locations[1].charAt(0))
                     ?
                     element.locations.forEach((data, index) => {
-                        mappingImages.set(data, <img src={happy[index]} alt={element.locations.type}></img>)
+                        mappingImages.set(data, <img src={happy[index]} alt={element.locations.type} ></img>)
                     })
                     :
                     element.locations.forEach((data, index) => {
-                        mappingImages.set(data, <img src={happyHorizon[index]} alt={element.locations.type}></img>)
+                        mappingImages.set(data, <img src={happyHorizon[index]} alt={element.locations.type} ></img>)
                     })
                 break;
             case 3:

@@ -12,7 +12,7 @@ import Leaderboard from './web/LeaderBoard';
 import reportWebVitals from './reportWebVitals';
 import MainPage from './web/MainPage';
 import NewGame from './web/NewGame';
-
+import Battle from './web/Battle';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <BrowserRouter>
@@ -24,6 +24,8 @@ root.render(
       <Route path="/leaderboard" element={<Leaderboard />} />
       <Route path="/login" element={<Login />} />
       <Route path="/newgame" element={<NewGame />} />
+      <Route path="/battle/:gameplayerID" element={<Battle/>} />
+
     </Routes>
   </BrowserRouter>
 );

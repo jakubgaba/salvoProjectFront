@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import FetchData from './components/FetchData';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+
 function AllGames() {
   const storedPlayerId = localStorage.getItem('playerId');
-  const [data, loading, error] = FetchData('/api/games');
+  const [refresh, setRefresh] = useState(false);
+  const [data, loading, error] = FetchData('/api/games', refresh);
   const [gamesData, setGamesData] = useState([]);
   const navigate = useNavigate();
 
@@ -14,29 +15,26 @@ function AllGames() {
     }
   }, [data]);
 
-  console.log(gamesData);
 
-  const handleClick = async () => {
+  const handleClick = () => {
     try {
-      const refreshedData = await axios.get('/api/games');
-      setGamesData(refreshedData.data);
       navigate('/newgame');
     } catch (error) {
       console.log(error.response.data);
     }
   };
 
-  const handleClickAdd = async (gameId) => {
-    console.log(gameId);
-    try {
-      const response = await axios.post(`/api/game/${gameId}/players`, { playerId: parseInt(storedPlayerId) });
-      const refreshedData = await axios.get('/api/games');
-      setGamesData(refreshedData.data);
-      console.log(response);
-    } catch (error) {
-      console.log(error.response.data);
+  const handleClickAdd = (id) => {
+    navigate('/newgame', { state: { id } });
+  };
+
+  const handleClickContinue = (gameplayers, gameplayerID, actuallPlayer) => {
+    setRefresh(!refresh);
+    if (gameplayers === 2) {
+      navigate(`/battle/${gameplayerID}`, { state: { actuallPlayer } });
     }
   };
+
 
   const painTable = gamesData.map(data => (
     <tbody key={data.id}>
@@ -49,7 +47,7 @@ function AllGames() {
           <td>{datas.players.userName}</td>
           <td>{/*eslint-disable-next-line */}
             {storedPlayerId == datas.players.id ? (
-              <button className="btn btn-success" onClick={() => console.log(data.gamePlayers)}>
+              <button className="btn btn-success" onClick={() => handleClickContinue(data.gamePlayers.length, datas.id, storedPlayerId)}>
                 Continue
               </button>
             ) : (// eslint-disable-next-line
@@ -83,9 +81,16 @@ function AllGames() {
             </thead>
             {painTable}
           </table>
-          <button onClick={handleClick}>
-            {loading ? 'Creating game...' : 'Create new game'}
-          </button>
+          <div className="container d-flex justify-content-center">
+            <div className="col-md-3 mb-3">
+              <button type="button" className="btn btn-warning w-100 d-flex justify-content-center" onClick={handleClick}>
+                <div className="py-2 pr-3">
+                  <h4>Create</h4>
+                  <span>game</span>
+                </div>
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

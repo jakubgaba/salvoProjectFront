@@ -1,37 +1,40 @@
-import cruiser from "../images/cruiserShip2.png";
-import cruiser0 from "../images/cruiser0.png";
-import cruiser1 from "../images/cruiser1.png";
-import cruiser2 from "../images/cruiser2.png";
-import cruiser0horizon from "../images/cruiser0horizon.png";
-import cruiser1horizon from "../images/cruiser1horizon.png";
-import cruiser2horizon from "../images/cruiser2horizon.png";
-import happy0horizon from "../images/happy0horizon.png";
-import happy1horizon from "../images/happy1horizon.png";
-import jackShip0horizon from "../images/jackShip0horizon.png";
-import jackShip1horizon from "../images/jackShip1horizon.png";
-import jackShip2horizon from "../images/jackShip2horizon.png";
-import jackShip3horizon from "../images/jackShip3horizon.png";
-import happyShip from "../images/HappyShip2.png";
-import jackShip from "../images/jackShip.png";
-import happy0 from "../images/happy0.png";
-import happy1 from "../images/happy1.png";
-import jackShip0 from "../images/jackShip0.png";
-import jackShip1 from "../images/jackShip1.png";
-import jackShip2 from "../images/jackShip2.png";
-import jackShip3 from "../images/jackShip3.png";
+import cruiser from "../imagesAdding/cruiserShip2.png";
+import cruiser0 from "../imagesAdding/cruiser0.png";
+import cruiser1 from "../imagesAdding/cruiser1.png";
+import cruiser2 from "../imagesAdding/cruiser2.png";
+import cruiser0horizon from "../imagesAdding/cruiser0horizon.png";
+import cruiser1horizon from "../imagesAdding/cruiser1horizon.png";
+import cruiser2horizon from "../imagesAdding/cruiser2horizon.png";
+import happy0horizon from "../imagesAdding/happy0horizon.png";
+import happy1horizon from "../imagesAdding/happy1horizon.png";
+import jackShip0horizon from "../imagesAdding/jackShip0horizon.png";
+import jackShip1horizon from "../imagesAdding/jackShip1horizon.png";
+import jackShip2horizon from "../imagesAdding/jackShip2horizon.png";
+import jackShip3horizon from "../imagesAdding/jackShip3horizon.png";
+import happyShip from "../imagesAdding/HappyShip2.png";
+import jackShip from "../imagesAdding/jackShip.png";
+import happy0 from "../imagesAdding/happy00.png";
+import happy1 from "../imagesAdding/happy11.png";
+import jackShip0 from "../imagesAdding/jackShip0.png";
+import jackShip1 from "../imagesAdding/jackShip1.png";
+import jackShip2 from "../imagesAdding/jackShip2.png";
+import jackShip3 from "../imagesAdding/jackShip3.png";
 import { useState } from "react";
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 function NewGame() {
     var tableRows = [" ", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J"];
     var tableColumns = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"];
-  
- 
+
+
     const [draggedShip, setDraggedShip] = useState(null);
     const [draggedShipName, setDraggedShipName] = useState(null);
     const [draggedShipStyle, setDraggedShipStyle] = useState({});
     const [cellIds, setCellIds] = useState([]);
     const navigate = useNavigate();
+    const location = useLocation();
+    const id = location.state?.id;
     const [cruiserState, setCruiser] = useState([]);
     const [happyState, setHappy] = useState([]);
     const [jackState, setJack] = useState([]);
@@ -217,11 +220,11 @@ function NewGame() {
                 break;
             case "jackShip":
                 newCellIds = getJackLocations(row, col);
-                setHappy(newCellIds);
+                setJack(newCellIds);
                 break;
             case "happyShip":
                 newCellIds = getHappyLocations(row, col);
-                setJack(newCellIds);
+                setHappy(newCellIds);
                 break;
             default:
         }
@@ -306,7 +309,7 @@ function NewGame() {
                             locationsOldCells.innerHTML = '<div class="p-4 bg-info"></div>';
                             locationsOldCells.removeAttribute("alt");
                             locationsOldCells.removeAttribute("data-comment");
-                            locationsOldCells.innerHTML = '<div class="p-4 bg-info"></div>';
+                            setCruiser([]);
                             locations.setAttribute("data-comment", "cruiser");
                             locations.setAttribute("alt", newCellIds);
                             locations.setAttribute("data-custom", "moved");
@@ -319,6 +322,7 @@ function NewGame() {
                             locationsOldCells.removeAttribute("alt");
                             locationsOldCells.removeAttribute("data-comment");
                             locationsOldCells.innerHTML = '<div class="p-4 bg-info"></div>';
+                            setHappy([]);
                             locations.setAttribute("data-comment", "happyShip");
                             locations.setAttribute("alt", newCellIds);
                             locations.setAttribute("data-custom", "moved");
@@ -331,6 +335,7 @@ function NewGame() {
                             locationsOldCells.removeAttribute("alt");
                             locationsOldCells.removeAttribute("data-comment");
                             locationsOldCells.innerHTML = '<div class="p-4 bg-info"></div>';
+                            setJack([]);
                             locations.setAttribute("data-comment", "jackShip");
                             locations.setAttribute("alt", newCellIds);
                             locations.setAttribute("data-custom", "moved");
@@ -349,6 +354,7 @@ function NewGame() {
                             locations.removeAttribute("data-custom");
                             locations.innerHTML =
                                 '<div class="p-4 bg-info"></div>';
+                                setCruiser([]);
                             locationsOldCells.setAttribute("alt", cellIndex);
                             locationsOldCells.setAttribute("data-comment", "cruiser");
                             locationsOldCells.innerHTML = '<img src="' + cruiserSeparated[index] + '">';
@@ -361,6 +367,7 @@ function NewGame() {
                             locations.removeAttribute("data-custom");
                             locations.innerHTML =
                                 '<div class="p-4 bg-info"></div>';
+                                setHappy([]);
                             locationsOldCells.setAttribute("alt", cellIndex);
                             locationsOldCells.setAttribute("data-comment", "happyShip");
                             locationsOldCells.innerHTML = '<img src="' + happySeparated[index] + '">';
@@ -372,6 +379,7 @@ function NewGame() {
                             locations.removeAttribute("data-custom");
                             locations.innerHTML =
                                 '<div class="p-4 bg-info"></div>';
+                                setJack([]);
                             locationsOldCells.setAttribute("alt", cellIndex);
                             locationsOldCells.setAttribute("data-comment", "jackShip");
                             locationsOldCells.innerHTML = '<img src="' + jackSparrow[index] + '">';
@@ -396,6 +404,9 @@ function NewGame() {
             change.innerHTML =
                 '<div class="p-4 bg-info"></div>';
         });
+        setCruiser([]);
+        setHappy([]);
+        setJack([]);
         setCruiserCount(1);
         setJackCount(1);
         setHappyCount(1);
@@ -407,19 +418,26 @@ function NewGame() {
 
     const handleButtonClickSave = async () => {
         const all = [cruiserState, happyState, jackState];
+        const gameid = id;
 
         if (cruiserCount === 0 && jackCount === 0 && happyCount === 0) {
             try {
-                const response = await axios.post(`/api/createGameShips`, all);
+                let response;
+                if (gameid) {
+                    response = await axios.post(`/api/joinGame?gameid=${gameid}`, all);
+                } else {
+                    response = await axios.post(`/api/createGameShips`, all);
+                }
+                console.log(response);
                 navigate('/AllGames');
             } catch (error) {
                 console.log(error.response.data);
             }
-        } else {
-            alert("Cannot save game data when there are not all ships placed.");
+        }
+        else {
+            alert("Cannot save game data when there are no ship positions defined.");
         }
     };
-
 
 
     return (
@@ -450,8 +468,8 @@ function NewGame() {
                                         onDoubleClick={(event) => handleDoubleClick(event, row + column)}
                                         style={
                                             cellIds.includes(row + column)
-                                                ? { opacity: 0.1, transition: "1s" }
-                                                : {}
+                                                ? { opacity: 0.1, transition: "1s", padding: 0.5 }
+                                                : { padding: 0.5 }
                                         }
                                     >
                                         {indexRow === 0 ? column : displayShipLocation()}
