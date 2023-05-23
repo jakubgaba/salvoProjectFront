@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import cruiser0 from "../imagesAdding/cruiser0.png";
 import cruiser1 from "../imagesAdding/cruiser1.png";
 import cruiser2 from "../imagesAdding/cruiser2.png";
@@ -18,6 +18,8 @@ import jackShip1 from "../imagesAdding/jackShip1.png";
 import jackShip2 from "../imagesAdding/jackShip2.png";
 import jackShip3 from "../imagesAdding/jackShip3.png";
 import axios from "axios";
+import "../styling/style.css";
+
 import { useParams, useLocation } from "react-router-dom";
 function Battle() {
   var tableRows = [" ", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J"];
@@ -25,45 +27,95 @@ function Battle() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   // const storedPlayerId = localStorage.getItem('playerId');
-  const [etag, setEtag] = useState(null);
   const { gameplayerID } = useParams();
   const [mouseMove, setMouseMove] = useState(null);
   const [shots, setShots] = useState([]);
+  const [shipTypes, setShipTypes] = useState({ C: [], H: [], J: [] });
   const location = useLocation();
   const actuallPlayer = location.state?.actuallPlayer;
-  let enemyMergedLocations = [];
+  let hits = [];
+  let sinks = [];
+  let enemyShotsString = '';
+  const [successShot, setSuccessShot] = useState([]);
+  const [unSuccessShot, setUnSuccessShot] = useState([]);
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const fetchData = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`/api/game_view/${gameplayerID}`);
+      setData(response.data);
+      console.log(response.data);
+
+      if (response.data) {
+        let newShipTypes = { C: [], H: [], J: [] };
+        response.data.gamePlayers.forEach((element) => {
+          if (actuallPlayer == element.Id) {
+            const updatedSuccessShot = [];
+            const updatedUnsuccessShot = [];
+            element.enemySalvoes.forEach((location) => {
+              const locationsArray = location.replace(/[[\]\s]/g, '').split(',');
+              locationsArray.forEach(location => {
+                const shipType = location.charAt(location.length - 2);
+                if (location.endsWith('T')) {
+                  updatedSuccessShot.push(location.slice(0, -2));
+                  if (['C', 'H', 'J'].includes(shipType)) {
+                    newShipTypes[shipType].push(shipType);
+                  }
+                } else if (location.endsWith('F')) {
+                  updatedUnsuccessShot.push(location.slice(0, -1));
+                }
+              });
+            });
+            setSuccessShot(updatedSuccessShot);
+            setUnSuccessShot(updatedUnsuccessShot);
+          }
+        });
+        setShipTypes(newShipTypes);
+
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, [gameplayerID]);
 
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const response = await axios.get(`/api/game_view/${gameplayerID}`);
-        setData(response.data);
-        console.log(response.data);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchData();
-  }, [gameplayerID]);
+  }, [gameplayerID, fetchData]);
+
 
 
   const sendShots = async () => {
     if (shots.length === 3) {
       try {
         const response = await axios.post(`/api/createShots/${gameplayerID}`, shots);
-        console.log('Shots sent:', response.data);
         setShots([]);
+        fetchData();
       } catch (error) {
-        console.error('Error sending shots:', error);
+        if (error.response && error.response.status === 409) {
+          handleButtonClickReset();
+          displayErrorMessage("Wait for your opponent");
+        } else {
+          alert(error);
+        }
       }
     } else {
       alert('You need to select exactly 3 shots.');
     }
   };
+
+  const clearErrorMessage = () => {
+    setErrorMessage('');
+  };
+
+  const displayErrorMessage = (message) => {
+    setErrorMessage(message);
+    setTimeout(clearErrorMessage, 2000);
+  };
+
 
 
   if (loading) {
@@ -73,6 +125,7 @@ function Battle() {
   if (!data) {
     return <div>Error fetching data</div>;
   }
+
 
 
   const cruiser = [];
@@ -106,18 +159,23 @@ function Battle() {
   jackSparrowHorizon.push(jackShip3horizon);
 
 
-  var shipLocations = data.ships.map((element) => {
-    return element.locations;
+  var shipLocations = [];
+  data.ships.forEach((element) => {
+    shipLocations.push(...element.locations);
   });
 
+
   data.gamePlayers.forEach((element) => {
+    // eslint-disable-next-line 
     if (actuallPlayer != element.Id) {
-      element.enemyShipLocations.forEach((location, index) => {
-        enemyMergedLocations = [...enemyMergedLocations, ...location];
+      element.enemySalvoes.forEach((location, index) => {
+        if (enemyShotsString.length > 0) {
+          enemyShotsString += ',';
+        }
+        enemyShotsString += location.replace(/[{}\s]/g, '');
       });
     }
   });
-
 
   var mappingImages = new Map();
   data.ships.forEach(element => {
@@ -157,37 +215,40 @@ function Battle() {
         break;
       default:
         break;
-
     }
   });
 
-  let myShotsString = '';
 
-  data.gamePlayers.forEach((element) => {
-    if (actuallPlayer == element.Id) {
-      element.enemySalvoes.forEach((location, index) => {
-        for (const key in location) {
-          if (myShotsString.length > 0) {
-            myShotsString += ',';
-          }
-          myShotsString += location[key].replace(/[\[\]\s]/g, '');
-        }
-      });
-    }
-  });
+
+
+
+
+
+
+
+
 
   function displayShipLocation(row, column) {
-    if (shipLocations.toString().includes(row + column)) {
-      return mappingImages.get(row + column);
-    }
-    else {
-      return <div className="p-4 bg-info"></div>
-
+    const cellId = row + column;
+    if (shipLocations.includes(cellId)) {
+      if (enemyShotsString.includes(cellId)) {
+        hits.push(cellId);
+        return <div className="p-4 bg-success"></div>;
+      } else {
+        return mappingImages.get(cellId);
+      }
+    } else if (enemyShotsString.includes(cellId)) {
+      sinks.push(cellId);
+      return <div className="p-4 bg-danger"></div>;
+    } else {
+      return <div className="p-4 bg-info"></div>;
     }
   }
 
-  const handleCellClick = (cellId) => {
 
+
+  const handleCellClick = (cellId) => {
+    console.log(cellId);
     if (shots.length < 3) {
       setShots((prevShots) => {
         if (prevShots.includes(cellId)) {
@@ -208,38 +269,12 @@ function Battle() {
 
   return (
     <div>
-      <h1 className="display-1 border-bottom border-5 text-center">
-      </h1>
-      <div className="table-container">
-        <table className="myTable">
-          <thead>
-            <tr>
-              <th>YOUR SHIPS</th>
-            </tr>
-          </thead>
-          <tbody>
-            {tableRows.map((row, indexRow) => (
-              <tr>
-                <td>
-                  {row}
-                </td>
-                {tableColumns.map((column, indexColumn) => (
-                  <td id={row + column} style={{ padding: "0.5px" }}>
-                    {indexRow === 0 ? column : displayShipLocation(row, column)}
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-
-        </table>
-      </div>
-      <div>
+      <div className='container2'>
         <div className="table-container">
           <table className="myTable">
             <thead>
               <tr>
-                <th>SHOOT AREA</th>
+                <th>YOUR SHIPS</th>
               </tr>
             </thead>
             <tbody>
@@ -247,40 +282,98 @@ function Battle() {
                 <tr key={row}>
                   <td>{row}</td>
                   {tableColumns.map((column, indexColumn) => (
-                    <td
-                      key={column}
-                      id={row + column}
-                      onMouseOver={() => setMouseMove(row + column)}
-                      onClick={() => handleCellClick(row + column)}
-                      style={
-                        mouseMove === row + column
-                          ? { opacity: 0.1, transition: "1s", padding: 0.5 }
-                          : { padding: 0.5 }
-                      }
-                    >
-                      {indexRow === 0 ? column : <div
-                        className={
-                          myShotsString.includes(row + column)
-                            ? "p-4 bg-danger"
-                            : shots.includes(row + column)
-                              ? "p-4 bg-danger"
-                              : "p-4 bg-info"
-                        }
-                      ></div>}
-
+                    <td key={row + column} id={row + column} style={{ padding: "0.5px" }}>
+                      {indexRow === 0 ? column : displayShipLocation(row, column)}
                     </td>
                   ))}
                 </tr>
               ))}
             </tbody>
           </table>
+          <div > Sinks: {sinks.length}</div>
+          <div > Hits: {hits.length}</div>
         </div>
-        <button className="btn btn-danger m-3" onClick={handleButtonClickReset}>RESET</button>
-        <button className="btn btn-success m-3" onClick={sendShots}>Shoot</button>
+        <div>
+          <div className="table-container">
+            <table className="myTable">
+              <thead>
+                <tr>
+                  <th>SHOOT AREA</th>
+                </tr>
+              </thead>
+              <tbody>
+                {tableRows.map((row, indexRow) => (
+                  <tr key={row}>
+                    <td>{row}</td>
+                    {tableColumns.map((column, indexColumn) => (
 
+                      <td
+                        key={column}
+                        id={row + column}
+                        onMouseOver={() => setMouseMove(row + column)}
+                        onClick={() => handleCellClick(row + column)}
+                        style={
+                          mouseMove === row + column
+                            ? { opacity: 0.1, transition: "1s", padding: 0.5 }
+                            : { padding: 0.5 }
+                        }
+                      >
+                        {indexRow === 0 ? column :
+                          <div className={
+                            successShot.includes(row + column)
+                              ? "p-4 bg-success"
+                              : unSuccessShot.includes(row + column)
+                                ? "p-4 bg-danger"
+                                : shots.includes(row + column)
+                                  ? "p-4 bg-warning"
+                                  : "p-4 bg-info"
+                          }></div>
+                        }
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <div > Success shots: {successShot.length}</div>
+            <div > Sinks: {unSuccessShot.length}</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <h1 className="display-1 border-bottom border-5 text-center">
+          <div>
+            <div className='errorMessage'>{errorMessage}</div>
+          </div>
+          <div >
+            <button className="btn btn-danger m-3" onClick={handleButtonClickReset}>RESET</button>
+            <button className="btn btn-success m-3" onClick={sendShots}>Shoot</button>
+          </div>
+          <div>
+            Battle
+          </div>
+        </h1>
+        <div className='score'>
+          <table id='score'>
+            <thead>
+              <tr>
+                <th className="special-th">Cruiser Ship</th>
+                <th className="special-th">Happy Ship</th>
+                <th className="special-th">Jack Ship</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td className="special-td">{shipTypes.C.length === 3 ? "Destroyed" : `Hits: ${shipTypes.C.length}`}</td>
+                <td className="special-td">{shipTypes.H.length === 2 ? "Destroyed" : `Hits: ${shipTypes.H.length}`}</td>
+                <td className="special-td">{shipTypes.J.length === 4 ? "Destroyed" : `Hits: ${shipTypes.J.length}`}</td>
+              </tr>
+            </tbody>
+          </table>
+
+        </div>
       </div>
     </div>
-
   );
 }
 
