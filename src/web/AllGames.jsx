@@ -11,6 +11,7 @@ function AllGames() {
 
   useEffect(() => {
     if (data) {
+      console.log(data);
       setGamesData(data);
     }
   }, [data]);

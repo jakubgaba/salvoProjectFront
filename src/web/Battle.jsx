@@ -19,9 +19,11 @@ import jackShip2 from "../imagesAdding/jackShip2.png";
 import jackShip3 from "../imagesAdding/jackShip3.png";
 import axios from "axios";
 import "../styling/style.css";
+import { useNavigate } from "react-router-dom";
 
 import { useParams, useLocation } from "react-router-dom";
 function Battle() {
+  const navigate = useNavigate();
   var tableRows = [" ", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J"];
   var tableColumns = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"];
   const [data, setData] = useState(null);
@@ -39,6 +41,7 @@ function Battle() {
   const [successShot, setSuccessShot] = useState([]);
   const [unSuccessShot, setUnSuccessShot] = useState([]);
   const [errorMessage, setErrorMessage] = useState('');
+  var shipLocations = [];
 
   const fetchData = useCallback(async () => {
     try {
@@ -50,6 +53,7 @@ function Battle() {
       if (response.data) {
         let newShipTypes = { C: [], H: [], J: [] };
         response.data.gamePlayers.forEach((element) => {
+          // eslint-disable-next-line eqeqeq
           if (actuallPlayer == element.Id) {
             const updatedSuccessShot = [];
             const updatedUnsuccessShot = [];
@@ -72,13 +76,13 @@ function Battle() {
           }
         });
         setShipTypes(newShipTypes);
-
       }
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
       setLoading(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, [gameplayerID]);
 
 
@@ -87,11 +91,12 @@ function Battle() {
   }, [gameplayerID, fetchData]);
 
 
-
   const sendShots = async () => {
     if (shots.length === 3) {
       try {
+        // eslint-disable-next-line no-unused-vars
         const response = await axios.post(`/api/createShots/${gameplayerID}`, shots);
+        console.log(response);
         setShots([]);
         fetchData();
       } catch (error) {
@@ -110,7 +115,6 @@ function Battle() {
   const clearErrorMessage = () => {
     setErrorMessage('');
   };
-
   const displayErrorMessage = (message) => {
     setErrorMessage(message);
     setTimeout(clearErrorMessage, 2000);
@@ -159,7 +163,7 @@ function Battle() {
   jackSparrowHorizon.push(jackShip3horizon);
 
 
-  var shipLocations = [];
+
   data.ships.forEach((element) => {
     shipLocations.push(...element.locations);
   });
@@ -266,7 +270,6 @@ function Battle() {
   };
 
 
-
   return (
     <div>
       <div className='container2'>
@@ -292,6 +295,7 @@ function Battle() {
           </table>
           <div > Sinks: {sinks.length}</div>
           <div > Hits: {hits.length}</div>
+          {hits.length === shipLocations.length ? <div>You lost</div> : null}
         </div>
         <div>
           <div className="table-container">
@@ -354,6 +358,13 @@ function Battle() {
           </div>
         </h1>
         <div className='score'>
+          <div className='LoseWon'>
+            {shipTypes.C.length === 3 && shipTypes.H.length === 2 && shipTypes.J.length === 4 ?
+              <div>! You won !</div> :
+              hits.length === shipLocations.length ?
+                <div>! You lost !</div> : null
+            }
+          </div>
           <table id='score'>
             <thead>
               <tr>
@@ -364,13 +375,18 @@ function Battle() {
             </thead>
             <tbody>
               <tr>
-                <td className="special-td">{shipTypes.C.length === 3 ? "Destroyed" : `Hits: ${shipTypes.C.length}`}</td>
-                <td className="special-td">{shipTypes.H.length === 2 ? "Destroyed" : `Hits: ${shipTypes.H.length}`}</td>
-                <td className="special-td">{shipTypes.J.length === 4 ? "Destroyed" : `Hits: ${shipTypes.J.length}`}</td>
+                <td className="special-td">
+                  {shipTypes.C.length === 3 ? "Destroyed" : `Hits: ${shipTypes.C.length}`}
+                </td>
+                <td className="special-td">
+                  {shipTypes.H.length === 2 ? "Destroyed" : `Hits: ${shipTypes.H.length}`}
+                </td>
+                <td className="special-td">
+                  {shipTypes.J.length === 4 ? "Destroyed" : `Hits: ${shipTypes.J.length}`}
+                </td>
               </tr>
             </tbody>
           </table>
-
         </div>
       </div>
     </div>

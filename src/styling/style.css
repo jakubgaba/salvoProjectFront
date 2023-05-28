@@ -50,3 +50,13 @@ body {
 #score .special-th {
     padding: 1.5rem;
 }
+
+.LoseWon {
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: aliceblue;
+    font-size: 100px;
+    font-weight: bolder;
+}
