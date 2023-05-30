@@ -1,8 +1,7 @@
 import leaderboard from "../images/leaderboard.png";
 import battle from "../images/battle.png";
-import addplayer from "../images/addplayer.png";
 import Logout from "./components/Logout";
-
+import pirate from "../images/pirate.png"
 
 export default function MainPage() {
 
@@ -10,8 +9,8 @@ export default function MainPage() {
 
 
     return (
-        <div className="container-fluid">
-            <nav className="navbar navbar-expand-lg navbar-light bg-light">
+        <div className="container-fluid bg-light ">
+            <nav className="navbar navbar-expand-lg navbar-light .bg-white">
                 <a className="navbar-brand" href="/">$</a>
                 <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="/navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span className="navbar-toggler-icon"></span>
@@ -38,7 +37,7 @@ export default function MainPage() {
 
 
             <div className="row">
-                <div className="col-md-4">
+                <div className="col-md-3">
                     <div className="card">
                         <img className="card-img-top" src={leaderboard} alt="leaderboard" />
                         <div className="card-body">
@@ -49,7 +48,7 @@ export default function MainPage() {
                     </div>
                 </div>
 
-                <div className="col-md-4">
+                <div className="col-md-3">
                     <div className="card">
                         <img className="card-img-top" src={battle} alt="Some bild" />
                         <div className="card-body">
@@ -60,18 +59,16 @@ export default function MainPage() {
                     </div>
                 </div>
 
-                <div className="col-md-4">
-                    <div className="card">
-                        <img className="card-img-top" src={addplayer} alt="Some bild" />
-                        <div className="card-body">
-                            <h4 className="card-title">Join the Game</h4>
-                            <p className="card-text">Step into a world of adventure and become the hero you were always meant to be.</p>
-                            <a href="/" className="btn btn-primary disabled">Join the Game Now</a>
-                        </div>
-
-                    </div>
+                <div className="col-md-4 ">
+                    <img
+                        src={pirate}
+                        class="img-fluid rounded-pill hover-shadow "
+                        alt="Los Angeles Skyscrapers"
+                    />
                 </div>
+
             </div>
+
 
             <footer className="footer mt-auto py-3">
                 <div className="container">

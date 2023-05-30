@@ -23,25 +23,38 @@ import { useNavigate } from "react-router-dom";
 
 import { useParams, useLocation } from "react-router-dom";
 function Battle() {
-  const navigate = useNavigate();
-  var tableRows = [" ", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J"];
-  var tableColumns = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"];
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  // const storedPlayerId = localStorage.getItem('playerId');
-  const { gameplayerID } = useParams();
-  const [mouseMove, setMouseMove] = useState(null);
-  const [shots, setShots] = useState([]);
-  const [shipTypes, setShipTypes] = useState({ C: [], H: [], J: [] });
-  const location = useLocation();
-  const actuallPlayer = location.state?.actuallPlayer;
-  let hits = [];
-  let sinks = [];
-  let enemyShotsString = '';
-  const [successShot, setSuccessShot] = useState([]);
-  const [unSuccessShot, setUnSuccessShot] = useState([]);
-  const [errorMessage, setErrorMessage] = useState('');
-  var shipLocations = [];
+  // React Router hooks
+const navigate = useNavigate();
+const location = useLocation();
+const { gameplayerID } = useParams();
+
+
+var tableRows = [" ", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J"];
+var tableColumns = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"];
+
+
+const [data, setData] = useState(null);
+const [loading, setLoading] = useState(true);
+const [mouseMove, setMouseMove] = useState(null);
+const [shots, setShots] = useState([]);
+const [shipTypes, setShipTypes] = useState({ C: [], H: [], J: [] });
+const [gameOver, setGameOver] = useState(false);
+const [successShot, setSuccessShot] = useState([]);
+const [unSuccessShot, setUnSuccessShot] = useState([]);
+const [errorMessage, setErrorMessage] = useState('');
+
+
+const actuallPlayer = location.state?.actuallPlayer;
+let hits = [];
+let sinks = [];
+let enemyShotsString = '';
+var shipLocations = [];
+
+
+const isAlreadyShot = (cellId) => successShot.includes(cellId) || unSuccessShot.includes(cellId);
+const isCellIdInShots = (cellId, prevShots) => prevShots.includes(cellId);
+const isShotsLimitReached = (shots) => shots.length >= 3;
+
 
   const fetchData = useCallback(async () => {
     try {
@@ -49,7 +62,6 @@ function Battle() {
       const response = await axios.get(`/api/game_view/${gameplayerID}`);
       setData(response.data);
       console.log(response.data);
-
       if (response.data) {
         let newShipTypes = { C: [], H: [], J: [] };
         response.data.gamePlayers.forEach((element) => {
@@ -90,6 +102,13 @@ function Battle() {
     fetchData();
   }, [gameplayerID, fetchData]);
 
+  useEffect(() => {
+    if (gameOver) {
+      setTimeout(() => {
+        navigate('/leaderboard');
+      }, 3000); // 3000 milliseconds = 3 seconds
+    }
+  }, [gameOver, navigate]);
 
   const sendShots = async () => {
     if (shots.length === 3) {
@@ -250,28 +269,33 @@ function Battle() {
   }
 
 
-
   const handleCellClick = (cellId) => {
-    console.log(cellId);
-    if (shots.length < 3) {
-      setShots((prevShots) => {
-        if (prevShots.includes(cellId)) {
-          return prevShots;
-        }
-        return [...prevShots, cellId];
-      });
-    } else {
-      alert('You have reached the maximum limit of 3 shots.');
+    if (isAlreadyShot(cellId)) {
+      alert('You can\'t shoot a position you have already shot.');
+      return;
     }
+    if (isShotsLimitReached(shots)) {
+      alert('You have reached the maximum limit of 3 shots.');
+      return;
+    }
+    setShots((prevShots) => {
+      if (isCellIdInShots(cellId, prevShots)) {
+        return prevShots;
+      } 
+      return [...prevShots, cellId];
+    });
   };
+
 
   const handleButtonClickReset = () => {
     setShots([]);
   };
 
-
   return (
     <div>
+      {gameOver && (
+        <div className='freeze'/>
+      )}
       <div className='container2'>
         <div className="table-container">
           <table className="myTable">
@@ -359,11 +383,18 @@ function Battle() {
         </h1>
         <div className='score'>
           <div className='LoseWon'>
-            {shipTypes.C.length === 3 && shipTypes.H.length === 2 && shipTypes.J.length === 4 ?
-              <div>! You won !</div> :
-              hits.length === shipLocations.length ?
-                <div>! You lost !</div> : null
-            }
+            {shipTypes.C.length === 3 && shipTypes.H.length === 2 && shipTypes.J.length === 4 ? (
+              <div>
+                {!gameOver && setGameOver(true)}
+                ! You won !
+              </div>
+            ) :
+              hits.length === shipLocations.length ? (
+                <div>
+                  {!gameOver && setGameOver(true)}
+                  ! You lost !
+                </div>
+              ) : null}
           </div>
           <table id='score'>
             <thead>
